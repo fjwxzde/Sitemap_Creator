@@ -1,0 +1,116 @@
+name: Sitemap Creator
+description: GitHub Action 🚀 for creating and updating sitemaps in your repository.
+author: 鸭鸭「カモ」(@DuckDuckStudio)
+color: yellow
+icon: book
+
+inputs:
+  location:
+    required: true
+    description: 网站地图的存放位置 (例如 docs/sitemap.xml)
+    default: "./sitemap.xml"
+
+  token:
+    required: false
+    description: 用于创建更新网站地图的拉取请求的 Token (不指定则使用 github.token)
+    default: ${{ github.token }}
+
+  timezone:
+    required: false
+    description: 设置生成时使用的时区 (不指定则使用 Asia/Shanghai (UTF+8))
+    default: "Asia/Shanghai"
+
+  basic_link:
+    required: false
+    description: 指向你网站的基础链接 (不指定则使用 GitHub Page 链接, 结尾不要带 / )
+    default: https://${{ github.event.repository.owner.login }}.github.io/${{ github.event.repository.name }}
+
+  file_type:
+    required: false
+    description: 网页文件的类型 (例如使用 docsify 部署的就是 md，不指定则设为 html，可指定多个类型)
+    default: "html,md"
+
+  ignore_file:
+    required: false
+    description: 指定哪些文件不包含在网站地图中
+    default: "啥都没有" # 应该不会有人要这个，留空会忽略所有文件
+
+  website_path:
+    required: true
+    description: 你的网站内容的位置 (例如 . (根目录) 或 docs)
+    default: "./"
+
+  base_branch:
+    required: false
+    description: 仓库主分支 (main，master 等)
+    default: main
+
+  debug:
+    required: false
+    description: 控制调试输出的开关
+    default: false
+
+runs:
+  using: composite
+  steps:
+    - name: 检出仓库
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # 检出完整记录
+
+    - name: 设置 Node.js 环境
+      uses: actions/setup-node@v4
+      with:
+        node-version: "latest"
+
+    - name: 设置时区
+      shell: bash
+      run: sudo timedatectl set-timezone ${{ inputs.timezone }}
+
+    - name: 创建 Sitemap
+      shell: bash
+      env:
+        LOCATION: ${{ inputs.location }}
+        BASIC_LINK: ${{ inputs.basic_link }}
+        FILE_TYPE: ${{ inputs.file_type }}
+        IGNORE_FILE: ${{ inputs.ignore_file }}
+        WEBSITE_PATH: ${{ inputs.website_path }}
+        DEBUG: ${{ inputs.debug }}
+      run: |
+        # 获取生成脚本
+        git clone https://github.com/fjwxzde/Sitemap_Creator
+        cp Sitemap_Creator/generate-sitemap.mjs Sitemap_Creator.mjs
+        rm -r Sitemap_Creator
+
+        # 生成网站地图
+        node Sitemap_Creator.mjs
+
+    - name: 提交并推送 sitemap.xml
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+      run: |
+        # 获取当前日期和时间
+        DATE_TIME=$(date '+%Y/%m/%d %H:%M')
+
+        BRANCH_NAME="sitemap-update-$(date +%Y%m%d%H%M%S)"
+        git checkout -b $BRANCH_NAME
+        echo "已创建分支 $BRANCH_NAME"
+
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+        git add docs/sitemap.xml
+        git commit -m "[${DATE_TIME}] Auto update sitemap"
+        git push --set-upstream origin $BRANCH_NAME
+
+        # 生成工作流 URL
+        WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+        # 使用 GitHub CLI 创建 PR，动态设置 body 内容为工作流链接
+        gh pr create --title "[${DATE_TIME}] Auto update sitemap" \
+                      --body "Created through the [workflow](${WORKFLOW_URL}).<br>Using [Sitemap Creator Action by DuckDuckStudio](https://github.com/DuckDuckStudio/Sitemap_Creator)" \
+                      --base ${{ inputs.base_branch }} \
+                      --head $BRANCH_NAME
+
+        echo "Pull Request 创建完成。"
