@@ -6,7 +6,7 @@ icon: book
 
 inputs:
   location:
-    required: true
+    required: false
     description: 网站地图的存放位置 (例如 docs/sitemap.xml)
     default: "./sitemap.xml"
 
