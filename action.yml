@@ -176,16 +176,8 @@ runs:
 
         # 判断是否有清理后的标签并添加到 PR
         if [[ -n "$CLEAN_LABELS" ]]; then
-          # 将标签按逗号分隔成数组
-          LABEL_ARRAY=($(echo "$CLEAN_LABELS" | tr ',' '\n'))
-          for LABEL in "${LABEL_ARRAY[@]}"; do
-            # 为 PR 添加标签
-            gh pr edit $PR_URL --add-label "$LABEL"
-            if [[ "$DEBUG" ]]; then
-              echo "[DEBUG] 为拉取请求添加标签: $LABEL"
-            fi
-          done
-          echo "[INFO] 已为创建的拉取请求添加指定的标签"
+          gh pr edit "$PR_URL" --add-label "$CLEAN_LABELS"
+          echo "[INFO] 已为创建的拉取请求添加标签: $CLEAN_LABELS"
         elif [[ "$DEBUG" ]]; then
           echo "[DEBUG] 没有有效标签，跳过添加标签"
         fi
