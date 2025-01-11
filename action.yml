@@ -101,15 +101,15 @@ runs:
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
         git add docs/sitemap.xml
-        git commit -m "[${DATE_TIME}] Auto update sitemap"
+        git commit -m "[${DATE_TIME}] 自动更新网站地图"
         git push --set-upstream origin $BRANCH_NAME
 
         # 生成工作流 URL
         WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
         # 使用 GitHub CLI 创建 PR，动态设置 body 内容为工作流链接
-        gh pr create --title "[${DATE_TIME}] Auto update sitemap" \
-                      --body "Created through the [workflow](${WORKFLOW_URL}).<br>Using [Sitemap Creator Action by DuckDuckStudio](https://github.com/DuckDuckStudio/Sitemap_Creator)" \
+        gh pr create --title "[${DATE_TIME}] 自动更新网站地图" \
+                      --body "此拉取请求通过 [工作流](${WORKFLOW_URL}) 使用 [Sitemap Creator](https://github.com/DuckDuckStudio/Sitemap_Creator) 创建。" \
                       --base ${{ inputs.base_branch }} \
                       --head $BRANCH_NAME
 
