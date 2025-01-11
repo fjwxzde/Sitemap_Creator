@@ -52,12 +52,19 @@ try {
         const relativePath = path.relative(websitePath, fullPath).replace(/\\/g, '/');
 
         // 如果当前路径在忽略列表中，则跳过
-        if (ignorePatterns.some(pattern => relativePath.includes(pattern))) {
-          return; // 跳过此文件
+        if (ignorePatterns.some(pattern => {
+          if (relativePath.includes(pattern)) {
+            if (debug) {
+              console.warn(`[DEBUG] 跳过文件 [${fullPath}] 因为其路径中包含 [${pattern}]`);
+            }
+            return true; // 如果找到了匹配的模式，返回 true，表示该文件应被忽略
+          }
+          return false; // 如果没有找到匹配的模式，返回 false，继续检查下一个模式
+        })) {
+          return; // 如果前面 true 跳过此文件
         }
 
-        const lastmod = getLastCommitDate(relativePath);
-
+        const lastmod = getLastCommitDate(relativePath); // 获取文件最后提交时间
         const encodedPath = encodeURIComponent(relativePath).replace(/%2F/g, '/'); // 对路径进行编码并替换%2F为/
 
         // 删除 URL 中的 `.md` 后缀
