@@ -92,6 +92,7 @@ runs:
 
         # 生成网站地图
         node Sitemap_Creator.mjs
+        rm Sitemap_Creator.mjs
 
     - name: 提交并推送 sitemap.xml
       shell: bash
