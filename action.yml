@@ -78,7 +78,7 @@ runs:
         DEBUG: ${{ inputs.debug }}
       run: |
         # 获取生成脚本
-        git clone https://github.com/fjwxzde/Sitemap_Creator
+        git clone https://github.com/fjwxzde/Sitemap_Creator -b Pre-Release # 预发行版
         cp Sitemap_Creator/generate-sitemap.mjs Sitemap_Creator.mjs
         rm -r Sitemap_Creator
 
