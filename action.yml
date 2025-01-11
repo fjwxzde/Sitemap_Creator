@@ -54,6 +54,10 @@ inputs:
     required: false
     description: 创建拉取请求时添加的标签
 
+  auto_merge:
+    required: false
+    description: 设置启用自动合并的类型 (不指定则不启用自动合并，可以使用 merge、rebase、squash)
+
 runs:
   using: composite
   steps:
@@ -95,17 +99,57 @@ runs:
         GH_TOKEN: ${{ inputs.token }}
         LABELS: ${{ inputs.labels }}
         DEBUG: ${{ inputs.debug }}
+        AUTO_MERGE: ${{ inputs.auto_merge }}
       run: |
+        # 参数处理
         # 获取当前日期和时间
         DATE_TIME=$(date '+%Y/%m/%d %H:%M')
 
-        # 移除特殊字符
+        # 移除标签参数中的特殊字符
         CLEAN_LABELS=$(echo "$LABELS" | sed 's/[\"\'\`]*//g') # 移除 " ' ` 字符
         if [[ "$LABELS" != "$CLEAN_LABELS" ]]; then
           if [[ "$DEBUG" ]]; then
-            echo "[DEBUG] 标签包含特殊字符，已移除：$LABELS -> $CLEAN_LABELS"
+            echo "[DEBUG] 标签包含特殊字符，已移除: $LABELS -> $CLEAN_LABELS"
           fi
         fi
+
+        # 如果 AUTO_MERGE 为空字符串，则不做任何操作
+        if [[ -z "$AUTO_MERGE" ]]; then
+          if [[ "$DEBUG" ]]; then
+            echo "[DEBUG] 不启用自动合并，因为自动合并方式为空"
+          fi
+          CLEAN_AUTO_MERGE=""
+        else
+          # 格式化自动合并方式
+          CLEAN_AUTO_MERGE=$(echo "$AUTO_MERGE" | tr '[:upper:]' '[:lower:]' | sed 's/[\"\'\`-]//g')  # 转为小写并移除 " ' ` -
+
+          # 根据输入值设置对应的自动合并方式
+          case "$CLEAN_AUTO_MERGE" in
+            "s"|"squash"|"压缩"|"压缩合并"|"压缩自动合并")
+              CLEAN_AUTO_MERGE="squash"
+              ;;
+            "m"|"merge"|"合并"|"合并提交"|"提交")
+              CLEAN_AUTO_MERGE="merge"
+              ;;
+            "r"|"rebase"|"变基"|"变基合并"|"变基自动合并")
+              CLEAN_AUTO_MERGE="rebase"
+              ;;
+            *)
+              echo "[ERROR] 未知的自动合并方式: $AUTO_MERGE"
+              echo "[TIP] 可用的自动合并方式: 压缩、合并、变基"
+              exit 1
+              ;;
+          esac
+        fi
+
+        # 如果自动合并方式进行了格式化，输出调试信息
+        if [[ "$AUTO_MERGE" != "$CLEAN_AUTO_MERGE" ]]; then
+          if [[ "$DEBUG" ]]; then
+            echo "[DEBUG] 已格式化自动合并方式: $AUTO_MERGE -> $CLEAN_AUTO_MERGE"
+          fi
+        fi
+
+        # ================
 
         # 生成分支名
         BRANCH_NAME="sitemap-update-$(date +%Y%m%d%H%M%S)"
@@ -148,5 +192,16 @@ runs:
         else
           if [[ "$DEBUG"" ]]; then
             echo "[DEBUG] 没有有效标签，跳过添加标签"
+          fi
+        fi
+
+        # 判断是否启用自动合并
+        # 如果 CLEAN_AUTO_MERGE 有值（即设置了自动合并方式），进行后续处理
+        if [[ -n "$CLEAN_AUTO_MERGE" ]]; then
+          gh pr merge $PR_URL --$CLEAN_AUTO_MERGE --auto
+          echo "[INFO] 已为拉取请求启用 $CLEAN_AUTO_MERGE 合并"
+        else
+          if [[ "$DEBUG"" ]]; then
+            echo "[DEBUG] 没有有效自动合并方式，跳过启用自动合并"
           fi
         fi
