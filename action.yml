@@ -185,7 +185,7 @@ runs:
         # 判断是否启用自动合并
         # 如果 CLEAN_AUTO_MERGE 有值（即设置了自动合并方式），进行后续处理
         if [[ -n "$CLEAN_AUTO_MERGE" ]]; then
-          gh pr merge $PR_URL --$CLEAN_AUTO_MERGE --auto
+          gh pr merge "$PR_URL" --$CLEAN_AUTO_MERGE --auto
           echo "[INFO] 已为拉取请求启用 $CLEAN_AUTO_MERGE 合并"
         elif [[ "$DEBUG" ]]; then
           echo "[DEBUG] 没有有效自动合并方式，跳过启用自动合并"
