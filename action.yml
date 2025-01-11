@@ -106,11 +106,9 @@ runs:
         DATE_TIME=$(date '+%Y/%m/%d %H:%M')
 
         # 移除标签参数中的特殊字符
-        CLEAN_LABELS=$(echo "$LABELS" | sed 's/[\"\'\`]*//g') # 移除 " ' ` 字符
-        if [[ "$LABELS" != "$CLEAN_LABELS" ]]; then
-          if [[ "$DEBUG" ]]; then
-            echo "[DEBUG] 标签包含特殊字符，已移除: $LABELS -> $CLEAN_LABELS"
-          fi
+        CLEAN_LABELS=$(echo "$LABELS" | sed "s/[\"\'\`]*//g") # 移除 " ' ` 字符
+        if [[ ("$LABELS" != "$CLEAN_LABELS") && ("$DEBUG") ]]; then
+          echo "[DEBUG] 标签包含特殊字符，已移除: $LABELS -> $CLEAN_LABELS"
         fi
 
         # 如果 AUTO_MERGE 为空字符串，则不做任何操作
@@ -121,7 +119,7 @@ runs:
           CLEAN_AUTO_MERGE=""
         else
           # 格式化自动合并方式
-          CLEAN_AUTO_MERGE=$(echo "$AUTO_MERGE" | tr '[:upper:]' '[:lower:]' | sed 's/[\"\'\`-]//g')  # 转为小写并移除 " ' ` -
+          CLEAN_AUTO_MERGE=$(echo "$AUTO_MERGE" | tr '[:upper:]' '[:lower:]' | sed "s/[\"\'\`-]//g") # 转为小写并移除 " ' ` -
 
           # 根据输入值设置对应的自动合并方式
           case "$CLEAN_AUTO_MERGE" in
@@ -143,10 +141,8 @@ runs:
         fi
 
         # 如果自动合并方式进行了格式化，输出调试信息
-        if [[ "$AUTO_MERGE" != "$CLEAN_AUTO_MERGE" ]]; then
-          if [[ "$DEBUG" ]]; then
-            echo "[DEBUG] 已格式化自动合并方式: $AUTO_MERGE -> $CLEAN_AUTO_MERGE"
-          fi
+        if [[ ("$AUTO_MERGE" != "$CLEAN_AUTO_MERGE") && ("$DEBUG") ]]; then
+          echo "[DEBUG] 已格式化自动合并方式: $AUTO_MERGE -> $CLEAN_AUTO_MERGE"
         fi
 
         # ================
@@ -189,10 +185,8 @@ runs:
             fi
           done
           echo "[INFO] 已为创建的拉取请求添加指定的标签"
-        else
-          if [[ "$DEBUG" ]]; then
-            echo "[DEBUG] 没有有效标签，跳过添加标签"
-          fi
+        elif [[ "$DEBUG" ]]; then
+          echo "[DEBUG] 没有有效标签，跳过添加标签"
         fi
 
         # 判断是否启用自动合并
@@ -200,8 +194,6 @@ runs:
         if [[ -n "$CLEAN_AUTO_MERGE" ]]; then
           gh pr merge $PR_URL --$CLEAN_AUTO_MERGE --auto
           echo "[INFO] 已为拉取请求启用 $CLEAN_AUTO_MERGE 合并"
-        else
-          if [[ "$DEBUG" ]]; then
-            echo "[DEBUG] 没有有效自动合并方式，跳过启用自动合并"
-          fi
+        elif [[ "$DEBUG" ]]; then
+          echo "[DEBUG] 没有有效自动合并方式，跳过启用自动合并"
         fi
