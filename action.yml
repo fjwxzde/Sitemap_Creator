@@ -50,6 +50,10 @@ inputs:
     description: 控制调试输出的开关
     default: false
 
+  labels:
+    required: false
+    description: 创建拉取请求时添加的标签
+
 runs:
   using: composite
   steps:
@@ -89,17 +93,30 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.token }}
+        LABELS: ${{ inputs.labels }}
+        DEBUG: ${{ inputs.debug }}
       run: |
         # 获取当前日期和时间
         DATE_TIME=$(date '+%Y/%m/%d %H:%M')
 
+        # 移除特殊字符
+        CLEAN_LABELS=$(echo "$LABELS" | sed 's/[\"\'\`]*//g') # 移除 " ' ` 字符
+        if [[ "$LABELS" != "$CLEAN_LABELS" ]]; then
+          if [[ "$DEBUG" ]]; then
+            echo "[DEBUG] 标签包含特殊字符，已移除：$LABELS -> $CLEAN_LABELS"
+          fi
+        fi
+
+        # 生成分支名
         BRANCH_NAME="sitemap-update-$(date +%Y%m%d%H%M%S)"
         git checkout -b $BRANCH_NAME
-        echo "已创建分支 $BRANCH_NAME"
+        echo "[INFO] 已创建新分支: $BRANCH_NAME"
 
+        # 配置 Git 用户
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+        # 提交并推送 sitemap.xml
         git add docs/sitemap.xml
         git commit -m "[${DATE_TIME}] 自动更新网站地图"
         git push --set-upstream origin $BRANCH_NAME
@@ -107,10 +124,29 @@ runs:
         # 生成工作流 URL
         WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-        # 使用 GitHub CLI 创建 PR，动态设置 body 内容为工作流链接
-        gh pr create --title "[${DATE_TIME}] 自动更新网站地图" \
-                      --body "此拉取请求通过 [工作流](${WORKFLOW_URL}) 使用 [Sitemap Creator](https://github.com/DuckDuckStudio/Sitemap_Creator) 创建。" \
-                      --base ${{ inputs.base_branch }} \
-                      --head $BRANCH_NAME
+        # 创建拉取请求
+        PR_URL=$(gh pr create --title "[${DATE_TIME}] 自动更新网站地图" \
+                              --body "此拉取请求通过 [工作流](${WORKFLOW_URL}) 使用 [Sitemap Creator](https://github.com/DuckDuckStudio/Sitemap_Creator) 创建。" \
+                              --base ${{ inputs.base_branch }} \
+                              --head $BRANCH_NAME \
+                              --json url -q ".url")
 
-        echo "Pull Request 创建完成。"
+        echo "[INFO] 已创建拉取请求: $PR_URL"
+
+        # 判断是否有清理后的标签并添加到 PR
+        if [[ -n "$CLEAN_LABELS" ]]; then
+          # 将标签按逗号分隔成数组
+          LABEL_ARRAY=($(echo "$CLEAN_LABELS" | tr ',' '\n'))
+          for LABEL in "${LABEL_ARRAY[@]}"; do
+            # 为 PR 添加标签
+            gh pr edit $PR_URL --add-label "$LABEL"
+            if [[ "$DEBUG" ]]; then
+              echo "[DEBUG] 为拉取请求添加标签: $LABEL"
+            fi
+          done
+          echo "[INFO] 已为创建的拉取请求添加指定的标签"
+        else
+          if [[ "$DEBUG"" ]]; then
+            echo "[DEBUG] 没有有效标签，跳过添加标签"
+          fi
+        fi
