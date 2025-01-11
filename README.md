@@ -1,7 +1,10 @@
-# Sitemap Creator
+# Sitemap Creator (Pre-Release)
 用 GitHub Action 🚀 在你的仓库中创建和更新网站地图。  
 
-[![GitHub Release](https://img.shields.io/github/release/DuckDuckStudio/Sitemap_Creator?style=flat)](https://github.com/DuckDuckStudio/Sitemap_Creator/releases/latest)  
+> [!WARNING]
+> 这是 Sitemap Creator 的 **预发行版本** 仓库。稳定版仓库请前往 [DuckDuckStudio/Sitemap_Creator](https://github.com/DuckDuckStudio/Sitemap_Creator) 查看。  
+
+[![GitHub Release](https://img.shields.io/github/release/fjwxzde/Sitemap_Creator_Pre-Release?style=flat)](https://github.com/fjwxzde/Sitemap_Creator_Pre-Release/releases/latest)  
 [反馈Bug🐛](https://github.com/DuckDuckStudio/Sitemap_Creator/issues) | [使用示例🚀](#3-使用示例)  
 
 ## 参数
@@ -31,7 +34,7 @@
 name: 生成 Sitemap
 
 # GitHub Actiion DuckDuckStudio/Sitemap_Creator 示例工作流
-# https://github.com/marketplace/actions/sitemap-creator
+# https://github.com/marketplace/actions/sitemap-creator-pre-release
 
 on:
   push:
@@ -50,7 +53,7 @@ jobs:
 
     steps:
       - name: 更新网站地图
-        uses: DuckDuckStudio/Sitemap_Creator@main
+        uses: fjwxzde/Sitemap_Creator_Pre-Release@1.0.0
         with:
           location: "docs/sitemap.xml"
           basic_link: "https://duckduckstudio.github.io/Articles/#" # docsify 部署的
@@ -73,5 +76,6 @@ jobs:
 ```
 
 ## 星星🌟
-如果您认为本项目对您有帮助，还请给本项目一个小小的 Star 。  
-[![星标历史](https://api.star-history.com/svg?repos=DuckDuckStudio/Sitemap_Creator&type=Date)](https://star-history.com/#DuckDuckStudio/Sitemap_Creator&Date)  
+如果您认为本项目对您有帮助，还请给本项目的主仓库 ([DuckDuckStudio/Sitemap_Creator](https://github.com/DuckDuckStudio/Sitemap_Creator)) 一个小小的 Star 。  
+
+[![主仓库星标历史](https://api.star-history.com/svg?repos=DuckDuckStudio/Sitemap_Creator&type=Date)](https://star-history.com/#DuckDuckStudio/Sitemap_Creator&Date)  
