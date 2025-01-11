@@ -168,7 +168,7 @@ runs:
         PR_URL=$(gh pr create --title "[${DATE_TIME}] 自动更新网站地图" \
                               --body "此拉取请求通过 [工作流](${WORKFLOW_URL}) 使用 [Sitemap Creator](https://github.com/DuckDuckStudio/Sitemap_Creator) 创建。" \
                               --base ${{ inputs.base_branch }} \
-                              --head $BRANCH_NAME
+                              --head $BRANCH_NAME)
 
         echo "[INFO] 已创建拉取请求: $PR_URL"
 
