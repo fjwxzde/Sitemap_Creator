@@ -190,7 +190,7 @@ runs:
           done
           echo "[INFO] 已为创建的拉取请求添加指定的标签"
         else
-          if [[ "$DEBUG"" ]]; then
+          if [[ "$DEBUG" ]]; then
             echo "[DEBUG] 没有有效标签，跳过添加标签"
           fi
         fi
@@ -201,7 +201,7 @@ runs:
           gh pr merge $PR_URL --$CLEAN_AUTO_MERGE --auto
           echo "[INFO] 已为拉取请求启用 $CLEAN_AUTO_MERGE 合并"
         else
-          if [[ "$DEBUG"" ]]; then
+          if [[ "$DEBUG" ]]; then
             echo "[DEBUG] 没有有效自动合并方式，跳过启用自动合并"
           fi
         fi
