@@ -5,7 +5,7 @@
 > 这是 Sitemap Creator 的稳定版仓库。预发行版仓库请前往 [fjwxzde/Sitemap_Creator_Pre-Release](https://github.com/fjwxzde/Sitemap_Creator_Pre-Release) 查看。  
 
 [![GitHub Release](https://img.shields.io/github/release/DuckDuckStudio/Sitemap_Creator?style=flat)](https://github.com/DuckDuckStudio/Sitemap_Creator/releases/latest)  
-[反馈Bug🐛](https://github.com/DuckDuckStudio/Sitemap_Creator/issues) | [使用示例🚀](#3-使用示例)  
+[反馈Bug🐛](https://github.com/DuckDuckStudio/Sitemap_Creator/issues) | [使用示例🚀](#4-使用示例)  
 
 ## 参数
 | 参数 | 描述 | 默认值 | 是否必须 | 备注 |
@@ -18,6 +18,8 @@
 | `ignore_file` | 指定哪些文件不包含在网站地图中 | `啥都没有` | 否 | `,`间隔 |
 | `website_path` | 你的网站内容的位置 (例如 `./` (根目录) 或 `docs`) | `./` (根目录) | **是** | / |
 | `base_branch` | 仓库主分支 (`main`，`master` 等) | `main` | 否 | / |
+| `labels` | 创建拉取请求时添加的标签 | / | 否 | 会自动移除`'`、`"`、<code>\`</code>，可以设置`debug: true`来查看运行情况，标签间用`,`分隔 |
+| `auto_merge` | 启用自动合并的方式 (不指定则不启用自动合并) | / | 否 | [可用的自动合并方式](#3-可用的自动合并方式)，[什么是自动合并](https://docs.github.com/zh/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/automatically-merging-a-pull-request) |
 | `debug` | 控制调试输出的开关 | `false` | 否 | 你用`true`还是`1`随便，js里真值<sup>[2](#2-java-script-中有哪些可用真值)</sup>的都行 |
 
 ## 帮助
@@ -29,12 +31,23 @@
 ### 2. Java Script 中有哪些可用真值
 请见[真值 - MDN Web 文档术语表：Web 相关术语的定义 | MDN](https://developer.mozilla.org/zh-CN/docs/Glossary/Truthy)。  
 
-### 3. 使用示例
+### 3. 可用的自动合并方式
+处理时会自动去除`'`、`"`、<code>\`</code>、`-`。
+| 接收的输入 (去除特殊字符后) | 自动合并方式 |
+|-----|-----|
+| `s`、`squash`、`压缩`、`压缩合并`、`压缩自动合并` | [压缩合并](https://docs.github.com/zh/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits) |
+| `m`、`merge`、`合并`、`合并提交`、`提交` | [合并提交](https://docs.github.com/zh/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#merge-your-commits) |
+| `r`、`rebase`、`变基`、`变基合并`、`变基自动合并` | [变基合并](https://docs.github.com/zh/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#rebase-and-merge-your-commits) |
+| 空字符串 | 不启用自动合并 |
+| 其他任意值 | 视作错误返回 `1` |
+
+### 4. 使用示例
 ```yml
 name: 生成 Sitemap
 
-# GitHub Actiion DuckDuckStudio/Sitemap_Creator 示例工作流
+# GitHub Actiion DuckDuckStudio/Sitemap_Creator 版本 1.0.1 示例工作流
 # https://github.com/marketplace/actions/sitemap-creator-stable
+# Under the [GNU Affero General Public License v3.0](https://github.com/DuckDuckStudio/Sitemap_Creator/blob/main/LICENSE)
 
 on:
   push:
@@ -44,7 +57,6 @@ on:
     paths:
       - '**/*.html'
       - '**/*.md'
-      - '.github/workflows/generate-sitemap.yml'
   workflow_dispatch: # 手动运行
 
 jobs:
@@ -53,26 +65,17 @@ jobs:
 
     steps:
       - name: 更新网站地图
-        uses: DuckDuckStudio/Sitemap_Creator@1.0.0
+        uses: DuckDuckStudio/Sitemap_Creator@1.0.1
         with:
           location: "docs/sitemap.xml"
           basic_link: "https://duckduckstudio.github.io/Articles/#" # docsify 部署的
           file_type: "html,md" # 默认值也是这个，爱加不加
           ignore_file: "_Footer.md,404.html,某鸭的文章页面模板.html,营销号"
           website_path: "docs"
-          base_branch: main # 默认值也是这个，爱加不加
+          base_branch: "main" # 默认值也是这个，爱加不加
+          labels: "DEV-已启用自动合并,工作流,DEV-开发分支合并"
+          auto_merge: "压缩合并"
           debug: true # 启用调试输出
-
-      - name: 启用自动合并 (压缩) # 此步骤是我另外手动加的，后续可能会将其加入为新参数
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          sleep 10 # 等 PR 创建了再查找
-          # 获取前面创建的 PR 编号，确保 PR 名包含 "Auto update sitemap"
-          PR_NUMBER=$(gh pr list --limit 1 --search "Auto update sitemap" --json number | jq -r '.[0].number')
-          gh pr merge $PR_NUMBER --squash --auto
-          gh pr comment $PR_NUMBER --body "这看起来是更新网站地图的 PR，已自动启用自动合并。👍"
-          gh pr edit $PR_NUMBER --add-label "DEV-已启用自动合并,工作流,DEV-开发分支合并" # 此处按照你自己仓库的标签来
 ```
 
 ## 星星🌟
