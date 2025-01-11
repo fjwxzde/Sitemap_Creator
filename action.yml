@@ -101,6 +101,7 @@ runs:
         LABELS: ${{ inputs.labels }}
         DEBUG: ${{ inputs.debug }}
         AUTO_MERGE: ${{ inputs.auto_merge }}
+        LOCATION: ${{ inputs.location }}
       run: |
         # 参数处理
         # 获取当前日期和时间
@@ -158,7 +159,7 @@ runs:
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
         # 提交并推送 sitemap.xml
-        git add docs/sitemap.xml
+        git add "$LOCATION"
         git commit -m "[${DATE_TIME}] 自动更新网站地图"
         git push --set-upstream origin $BRANCH_NAME
 
