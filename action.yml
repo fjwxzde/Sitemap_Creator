@@ -1,8 +1,21 @@
 name: Sitemap Creator Stable
 description: GitHub Action 🚀 for creating and updating sitemaps in your repository.
 author: 鸭鸭「カモ」(@DuckDuckStudio)
-color: yellow
-icon: book
+
+branding:
+  color: yellow
+  icon: book
+
+keywords:
+  [
+    'sitemap',
+    'website',
+    'seo',
+    'creator',
+    'updater',
+    'generator',
+    'urls'
+  ]
 
 inputs:
   location:
