@@ -76,6 +76,11 @@ inputs:
     description: 指定更新网站地图的方式 (直接提交或拉取请求)
     default: 拉取请求
 
+  auto_bug_report:
+    description: 指定当发生错误时是否自动向我们提交错误报告 (这会包含您的工作流链接和相关参数信息，不会包含您的个人信息)
+    required: false
+    default: 启用
+
 runs:
   using: composite
   steps:
@@ -105,12 +110,35 @@ runs:
       run: |
         # 获取生成脚本
         git clone https://github.com/fjwxzde/Sitemap_Creator -b Pre-Release # 预发行版
-        cp Sitemap_Creator/generate-sitemap.mjs Sitemap_Creator.mjs
+        cp Sitemap_Creator/src/generate-sitemap.mjs Sitemap_Creator.mjs
+        cp Sitemap_Creator/src/error-report.mjs error-report.mjs # 错误报告脚本
         rm -r Sitemap_Creator
 
         # 生成网站地图
         node Sitemap_Creator.mjs
         rm Sitemap_Creator.mjs
+
+    - name: 登记错误步骤
+      shell: bash
+      continue-on-error: true # 不要因为提交错误议题的错误影响整个工作流
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        AUTO_BUG_REPORT: ${{ inputs.auto_bug_report }}
+        DEBUG: ${{ inputs.debug }}
+        REPO: ${{ github.repository }}
+        # --- 错误反馈收集参数 ---
+        LOCATION: ${{ inputs.location }}
+        BASIC_LINK: ${{ inputs.basic_link }}
+        FILE_TYPE: ${{ inputs.file_type }}
+        IGNORE_FILE: ${{ inputs.ignore_file }}
+        WEBSITE_PATH: ${{ inputs.website_path }}
+        LABELS: ${{ inputs.labels }}
+        AUTO_MERGE: ${{ inputs.auto_merge }}
+        UPDATE: ${{ inputs.update }}
+      if: failure()
+      run: |
+        echo "FAILURE_STEP=生成/JS/脚本" >> $GITHUB_ENV
+        node error-report.mjs
 
     - name: 提交并推送 sitemap.xml
       shell: bash
@@ -122,6 +150,9 @@ runs:
         LOCATION: ${{ inputs.location }}
         UPDATE: ${{ inputs.update }}
       run: |
+        # 测试，模拟出错 - test202501142122
+        exit 3
+
         # 后面都要用的
         # 获取当前日期和时间
         DATE_TIME=$(date '+%Y/%m/%d %H:%M')
@@ -248,3 +279,31 @@ runs:
             echo "[DEBUG] 没有有效自动合并方式，跳过启用自动合并"
           fi
         fi
+
+    - name: 登记错误步骤
+      shell: bash
+      continue-on-error: true # 不要因为提交错误议题的错误影响整个工作流
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        AUTO_BUG_REPORT: ${{ inputs.auto_bug_report }}
+        DEBUG: ${{ inputs.debug }}
+        REPO: ${{ github.repository }}
+        # --- 错误反馈收集参数 ---
+        LOCATION: ${{ inputs.location }}
+        BASIC_LINK: ${{ inputs.basic_link }}
+        FILE_TYPE: ${{ inputs.file_type }}
+        IGNORE_FILE: ${{ inputs.ignore_file }}
+        WEBSITE_PATH: ${{ inputs.website_path }}
+        LABELS: ${{ inputs.labels }}
+        AUTO_MERGE: ${{ inputs.auto_merge }}
+        UPDATE: ${{ inputs.update }}
+      if: failure()
+      run: |
+        echo "FAILURE_STEP=提交/推送/拉取请求" >> $GITHUB_ENV
+        node error-report.mjs
+
+    - name: 清理错误报告反馈
+      shell: bash
+      run: |
+        rm error-report.mjs
+        echo "[INFO] 已清理错误报告反馈代码"
