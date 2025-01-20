@@ -18,6 +18,10 @@
 | 更多 | 优点 | ... | ✅ |
 
 ## 可用参数
+
+> [!TIP]
+> 所有参数名使用单数形式  
+
 | 参数 | 描述 | 默认值 | 是否必须 | 备注 |
 |-----|-----|-----|-----|-----|
 | `location` | 网站地图的存放位置 (例如 `docs/sitemap.xml`) | `./sitemap.xml` (即仓库根目录) | 否 | / |
@@ -28,7 +32,8 @@
 | `ignore_file` | 指定哪些文件不包含在网站地图中 | `啥都没有` | 否 | `,`间隔 |
 | `website_path` | 你的网站内容的位置 (例如 `./` (根目录) 或 `docs`) | `./` (根目录) | **是** | / |
 | `base_branch` | 仓库主分支 (`main`，`master` 等) | `main` | 否 | / |
-| `labels` | 创建拉取请求时添加的标签 | / | 否 | 会自动移除`'`、`"`、<code>\`</code>，可以设置`debug: true`来查看运行情况，标签间用`,`分隔 |
+| `label` | 创建拉取请求时添加的标签 | / | 否 | 会自动移除`'`、`"`、<code>\`</code>，可以设置`debug: true`来查看运行情况，标签间用`,`分隔 |
+| `reviewer` | 创建拉取请求时指定的审查者 | / | 否 | 会自动鉴权，如果指定的审查者不是仓库的协作者则无法添加 |
 | `auto_merge` | 启用自动合并的方式 (不指定则不启用自动合并) | / | 否 | [可用的自动合并方式](#3-可用的自动合并方式)，[什么是自动合并](https://docs.github.com/zh/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/automatically-merging-a-pull-request) |
 | `update` | 指定更新网站地图的方式 (直接提交或拉取请求) | `拉取请求` | 否 | [可用的参数值](#4-可用的修改网站地图的方式) |
 | `debug` | 控制调试输出的开关 | `false` | 否 | 你用`true`还是`1`随便，js里真值<sup>[2](#2-java-script-中有哪些可用真值)</sup>的都行 |
