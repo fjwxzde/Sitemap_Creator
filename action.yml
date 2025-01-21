@@ -312,7 +312,7 @@ runs:
 
           # 判断是否有清理后的审查者并添加到 PR
           if [[ -n "$CLEAN_REVIEWER" ]]; then
-            gh pr review "$PR_URL" --add "$CLEAN_REVIEWER"
+            gh pr edit "$PR_URL" --add-reviewer "$CLEAN_REVIEWER"
             echo "[INFO] 已为创建的拉取请求添加审查者: $CLEAN_REVIEWER"
           elif [[ "$DEBUG" ]]; then
             echo "[DEBUG] 没有有效审查者，跳过添加审查者"
