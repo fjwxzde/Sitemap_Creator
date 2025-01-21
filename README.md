@@ -1,10 +1,10 @@
 # Sitemap Creator
 用 GitHub Action 🚀 在你的仓库中创建和更新网站地图。  
 
-> [!TIP] 
-> 这是 Sitemap Creator 的稳定版仓库。预发行版仓库请前往 [fjwxzde/Sitemap_Creator_Pre-Release](https://github.com/fjwxzde/Sitemap_Creator_Pre-Release) 查看。  
+> [!WARNING] 
+> 这是 Sitemap Creator 的 **预发行版** 仓库。稳定版仓库请前往 [DuckDuckStudio/Sitemap_Creator](https://github.com/DuckDuckStudio/Sitemap_Creator) 查看。  
 
-[![GitHub Release](https://img.shields.io/github/release/DuckDuckStudio/Sitemap_Creator?style=flat)](https://github.com/DuckDuckStudio/Sitemap_Creator/releases/latest)  
+[![GitHub Release](https://img.shields.io/github/release/fjwxzde/Sitemap_Creator?style=flat)](https://github.com/fjwxzde/Sitemap_Creator/releases/latest)  
 [反馈Bug🐛](https://github.com/DuckDuckStudio/Sitemap_Creator/issues) | [使用示例🚀](#4-使用示例)  
 
 ## 为什么选择 Sitemap Creator 🏆
@@ -69,7 +69,7 @@
 name: 生成 Sitemap
 
 # GitHub Actiion DuckDuckStudio/Sitemap_Creator 版本 1.0.3 示例工作流
-# https://github.com/marketplace/actions/sitemap-creator-stable
+# https://github.com/marketplace/actions/sitemap-creator-pre-release
 # Under the [GNU Affero General Public License v3.0](https://github.com/DuckDuckStudio/Sitemap_Creator/blob/main/LICENSE)
 
 on:
@@ -88,7 +88,7 @@ jobs:
 
     steps:
       - name: 更新网站地图
-        uses: DuckDuckStudio/Sitemap_Creator@1.0.3
+        uses: fjwxzde/Sitemap_Creator_Pre-Release@1.0.3
         with:
           location: "docs/sitemap.xml"
           basic_link: "https://duckduckstudio.github.io/Articles/#" # docsify 部署的
