@@ -120,7 +120,7 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.token }}
-        LABELS: ${{ inputs.labels }}
+        LABELS: ${{ inputs.label }}
         DEBUG: ${{ inputs.debug }}
         AUTO_MERGE: ${{ inputs.auto_merge }}
         LOCATION: ${{ inputs.location }}
