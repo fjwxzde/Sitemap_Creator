@@ -212,7 +212,7 @@ runs:
                         done < response.json
                         exit 1
                       fi
-                    elif [[ "$DEBUG" ]]; then        
+                    elif [[ "$DEBUG" ]]; then
                       echo "[DEBUG] 审查者 $reviewer 鉴权成功"
                     fi
                     ;;
