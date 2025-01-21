@@ -213,9 +213,6 @@ runs:
                       fi
                     elif [[ "$DEBUG" ]]; then
                       echo "[DEBUG] GitHub API 请求返回:"
-                      while IFS= read -r line; do
-                        echo "[DEBUG] $line"
-                      done < response.json
                       echo "[DEBUG] 审查者 $reviewer 鉴权成功"
                     fi
                     ;;
@@ -228,14 +225,23 @@ runs:
                     ;;
                   403)
                     echo "[ERROR] 验证审查者时出错: 没有权限或达到速率限制 (403)"
+                    while IFS= read -r line; do
+                      echo "[DEBUG] $line"
+                    done < response.json
                     exit 1
                     ;;
                   404)
                     echo "[ERROR] 验证审查者时出错: 没有权限或仓库不存在 (404)"
+                    while IFS= read -r line; do
+                      echo "[DEBUG] $line"
+                    done < response.json
                     exit 1
                     ;;
                   *)
                     echo "[ERROR] 验证审查者时出错: 未命中的非成功状态码 ($status_code)"
+                    while IFS= read -r line; do
+                      echo "[DEBUG] $line"
+                    done < response.json
                     exit 1
                     ;;
                 esac
