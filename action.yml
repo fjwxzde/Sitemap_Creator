@@ -206,14 +206,24 @@ runs:
                     if ! jq -e ".[] | select(.login == \"$reviewer\")" response.json > /dev/null; then
                       echo "[ERROR] $reviewer 不是仓库的协作者"
                       if [[ "$DEBUG" ]]; then
-                        echo "[DEBUG] GitHub API 请求返回 $response"
+                        echo "[DEBUG] GitHub API 请求返回:"
+                        while IFS= read -r line; do
+                          echo "[DEBUG] $line"
+                        done < response.json
                       fi
                     elif [[ "$DEBUG" ]]; then
-                      echo "[DEBUG] GitHub API 请求返回 $response\n[DEBUG] 审查者 $reviewer 鉴权成功"
+                      echo "[DEBUG] GitHub API 请求返回:"
+                      while IFS= read -r line; do
+                        echo "[DEBUG] $line"
+                      done < response.json
+                      echo "[DEBUG] 审查者 $reviewer 鉴权成功"
                     fi
                     ;;
                   401)
-                    echo "[ERROR] 验证审查者时出错: 鉴权失败 (401)"
+                    echo "[ERROR] 验证审查者时出错: 鉴权失败 (401):"
+                    while IFS= read -r line; do
+                      echo "[DEBUG] $line"
+                    done < response.json
                     exit 1
                     ;;
                   403)
